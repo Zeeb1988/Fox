@@ -13,10 +13,17 @@ public class EnterDoor : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if ( Input.GetKeyDown(KeyCode.E) )
-        {
-            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
-        }
+        Invoke("LoadEndScene",2f);
+    }
+
+
+    void LoadEndScene()
+    {
+        
+        
+        
+         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
+        
 
     }
 }

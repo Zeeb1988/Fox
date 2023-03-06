@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
+using UnityEngine.EventSystems;
 public class Player : MonoBehaviour
 {
     private Rigidbody2D rb;
@@ -34,15 +35,24 @@ public class Player : MonoBehaviour
     public GameObject Blood3;
     public GameObject gameOver;
     public GameObject player;
+    public Joystick joystick;
+    public GameObject poseButton;
+    public GameObject jumpButton;
+
+
     //protected int goal;
     private int BLOOD = 3;
     private bool isPressed;
+    protected bool isHeld;
+    protected JoyButton joyButton;
+    private bool isJumpping;
     // Start is called before the first frame update
       void Start()
     {
          
        rb = GetComponent<Rigidbody2D>();
         anim = GetComponent<Animator>();
+        joyButton = FindObjectOfType<JoyButton>();
         
     }
  
@@ -54,13 +64,19 @@ public class Player : MonoBehaviour
         if (!isHurt)
         {
 
-            if (Input.GetButtonDown("Jump") && circle.IsTouchingLayers(floor))
+            if (joyButton.isHeld && circle.IsTouchingLayers(floor) && !isJumpping)
             {
                 isPressed = true;
-
+                isJumpping= true;
+                
+            }
+            if (!joyButton.isHeld && isJumpping)
+            {
+                
+                isJumpping = false;
 
             }
-            
+
             Crouch();
 
         }
@@ -71,7 +87,7 @@ public class Player : MonoBehaviour
         if (!isHurt)
         {
             Movement();
-            if (isPressed) { Jump(); }
+            if (isPressed) {  Jump();isHeld = false; }
             
         }
        
@@ -82,8 +98,11 @@ public class Player : MonoBehaviour
     //角色水平轴移动
     void Movement() 
     {
-        float x = Input.GetAxisRaw("Horizontal");
-        float face = Input.GetAxisRaw("Horizontal");
+        //float x = Input.GetAxisRaw("Horizontal");
+        float x = joystick.Horizontal;
+        //float face = Input.GetAxisRaw("Horizontal");
+        float face = joystick.Horizontal;
+
         rb.velocity = new Vector2(x * speed /** Time.fixedDeltaTime*/ , rb.velocity.y);
 
         if (circle.IsTouchingLayers(floor))
@@ -98,10 +117,16 @@ public class Player : MonoBehaviour
             anim.SetBool("falling", true);
         }
         
-        if (face != 0) 
+        if (face > 0) 
         {
              
-            transform.localScale = new Vector3( face,1,1 );
+            transform.localScale = new Vector3( 1,1,1 );
+        }
+
+        if (face < 0)
+        {
+
+            transform.localScale = new Vector3(-1, 1, 1);
         }
 
     }
@@ -240,7 +265,7 @@ public class Player : MonoBehaviour
 
         //if (!Physics2D.OverlapCircle(pointCheck.position, 0.5f, floor))//
         {
-            if (Input.GetButton("Crouch"))
+            if (joystick.Vertical < -0.5f)
                 {
                     anim.SetFloat("running", 3);
                     anim.SetBool("Crouching", true);
@@ -258,10 +283,13 @@ public class Player : MonoBehaviour
     //角色跳跃
     void Jump()
     {
-        rb.velocity = new Vector2(rb.velocity.x, jumpForce );
-        anim.SetBool("jumping", true);
-        //capsule.enabled = false;
-        jumpVoice.Play();
+            
+            rb.velocity = new Vector2(rb.velocity.x, jumpForce);
+            anim.SetBool("jumping", true);
+            //capsule.enabled = false;
+            jumpVoice.Play();
+
+        
         isPressed = false;
     }
 
@@ -284,6 +312,8 @@ public class Player : MonoBehaviour
             Blood1.SetActive(false);
             player.SetActive(false);
             gameOver.SetActive(true);
+            poseButton.SetActive(false);
+            jumpButton.SetActive(false);
         }
 
     }
@@ -298,5 +328,8 @@ public class Player : MonoBehaviour
         goalVoice.Play();
         GemGoal++;
     }
-
+    public void jumpButtonHeld()
+    {
+        isHeld= true;
+    }
 }

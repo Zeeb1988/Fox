@@ -7,7 +7,7 @@ public class Enter : MonoBehaviour
     public GameObject enterDialog;
     // Start is called before the first frame update
 
-    private void OnTriggerEnter2D(Collider2D collision)
+    private void OnTriggerStay2D(Collider2D collision)
     
     {
         if (collision.gameObject.tag == "Players") 
@@ -15,14 +15,7 @@ public class Enter : MonoBehaviour
             enterDialog.SetActive(true);
         }
     }
-    private void OnTriggerExit2D(Collider2D collision)
+   
+
     
-    {
-        if (collision.gameObject.tag == "Players")
-        {
-            enterDialog.SetActive(false);
-        }
-    }
-
-
 }
